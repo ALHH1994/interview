@@ -1,0 +1,58 @@
+.pipeline-component {
+    display: flex;
+}
+
+.stage {
+    margin-right: 100px;
+}
+
+.content .before {
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    height: 46px;
+    width: 30px;
+}
+
+.content .after {
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    height: 46px;
+    width: 30px;
+}
+
+.content .line {
+    position: absolute;
+    right: -100px;
+    top: 17px;
+    width: 100px;
+    height: 2px;
+}
+
+.content {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    border: 1px solid #ddd;
+    height: 36px;
+    border-radius: 20px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.title {
+    text-align: left;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.icon img {
+    vertical-align: middle;
+}
+
+.text {
+    padding: 0 5px;
+}
