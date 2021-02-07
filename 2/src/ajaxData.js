@@ -5,11 +5,10 @@
 // 3. 请求失败⾃动重试指定次数
 (function (window, axios) {
     let dict = new Map()
-    const ajaxData = function (url, options = {}) {
-        const id = options.id || url
-        const cacheInfo = dict.get(id)
+    const ajaxData = function (url, retry = 3) {
+        const cacheInfo = dict.get(url)
         if (!cacheInfo) {
-            return fetchInfo(id, url)
+            return fetchInfo(url, retry)
         }
         const status = cacheInfo.status
         if (status === 'pending') {
@@ -23,41 +22,41 @@
             return Promise.reject(cacheInfo.err)
         }
     }
-    const fetchInfo = function (id, url) {
-        setItem(id, {
+    const fetchInfo = function (url,retry) {
+        setItem(url, {
             status: 'pending',
             resolveHandler: [],
             rejectHandler: []
         })
         return axios(url).then(resp => {
-            setItem(id, { status: 'fulfilled', resp })
-            notify(id, resp)
+            setItem(url, { status: 'fulfilled', resp })
+            notify(url, resp)
             return Promise.resolve(resp)
         }).catch(err => {
-            notify(id, err)
-            autoFetch(id, url, 3, err) //自动重试3次
+            notify(url, err)
+            autoFetch(url, retry, err) //自动重试3次
         })
     }
-    const autoFetch = function (id, url, num, err) {
-        if (num > 1) {
+    const autoFetch = function (url, retry, err) {
+        if (retry > 1) {
             return new Promise((resolve, reject) => {
                 axios(url).then(resp => {
-                    setItem(id, { status: 'fulfilled', resp })
+                    setItem(url, { status: 'fulfilled', resp })
                     return resolve(resp)
                 }).catch(err => {
-                    autoFetch(id, url, --num, err)
+                    autoFetch(url, --retry, err)
                 })
             })
         } else {
-            setItem(id, { status: 'rejected', err })
+            setItem(url, { status: 'rejected', err })
             return Promise.reject(err)
         }
     }
-    const setItem = function (id, info) {
-        dict.set(id, { ...dict.get(id) || {}, ...info })
+    const setItem = function (url, info) {
+        dict.set(url, { ...dict.get(url) || {}, ...info })
     }
-    const notify = function (id, value) {
-        const cacheInfo = dict.get(id)
+    const notify = function (url, value) {
+        const cacheInfo = dict.get(url)
         let queue = []
         if (status === 'fulfilled') {
             queue = cacheInfo.resolveHandler
@@ -67,7 +66,7 @@
         while (queue.length) {
             queue.shift()(value)
         }
-        setItem(id, { resolveHandler: [], rejectHandler: [] })
+        setItem(url, { resolveHandler: [], rejectHandler: [] })
     }
     window.ajaxData = ajaxData
 })(window, axios)
