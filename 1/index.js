@@ -9,21 +9,21 @@ var data = [
     { userId: 19, title: 'title2' }
 ];
 var find = function (origin) {
-    this.origin = origin || []
-    this.where = function (params) {
-        let reg = params.title
-        this.origin = this.origin.filter(value => {
-            return reg.test(value.title)
-        })
-        return this
+    var obj = {
+        where: function (params) {
+            let reg = params.title
+            origin = origin.filter(value => {
+                return reg.test(value.title)
+            })
+            return this
+        },
+        orderBy: function (key, way) {
+            return origin.sort((a, b) => {
+                return way === 'desc' ? b[key] - a[key] : a[key] - b[key]
+            })
+        }
     }
-    this.orderBy = function (key, way) {
-        this.origin.sort((a, b) => {
-            return way === 'desc' ? b[key] - a[key] : a[key] - b[key]
-        })
-        return this.origin
-    }
-    return this
+    return obj
 }
 // 查找 data 中，符合条件的数据，并进⾏排序
 var result = find(data).where({
